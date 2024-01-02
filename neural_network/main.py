@@ -1,20 +1,56 @@
-import csv
-import random
+from sklearn.svm import LinearSVC
+from sklearn.metrics import accuracy_score
 
-base_de_dados = []
-with open('winequality-red.csv', 'r') as csvfile:
-    dados = csv.reader(csvfile, delimiter=';')
-    for line in dados:
-        line = [float(i) for i in line]
-        base_de_dados.append(line)
+# Exemplos utilizando porcos e cachorros
 
+# Possui pelo Longo? [0 ou 1] ou [False ou True]
 
-def separacao_teste_treino(base_de_dados, porcentagem_treino):
-    porcento = porcentagem_treino * len(
-        base_de_dados) // 100  # Neste caso, com esse banco de dados, ele está dando uma porcentagem de 1279
-    data_treino = random.sample(base_de_dados, porcento) # 1279 amostras aleatórias com valores parecidos com os da base de dados
-    print(data_treino)
+# Posui perna curta? [0 ou 1] ou [False ou True]
 
+# Faz auau? [0 ou 1] ou [False ou True]
 
-if __name__ == '__main__':
-    separacao_teste_treino(base_de_dados, 80)
+porco1 = [0, 1, 0]
+porco2 = [0, 1, 1]
+porco3 = [1, 1, 0]
+
+cachorro1 = [0, 1, 1]
+cachorro2 = [1, 0, 1]
+cachorro3 = [1, 1, 1]
+
+treino_x = [porco1, porco2, porco3, cachorro1, cachorro2, cachorro3]
+# No caso dados de treino(treino_x) são as variaveis que eu apresentaria para alguem que estou ensinando, neste caso um IA, e que a partir destes dados
+# ele irá aprender a reconhecer um porco de um cachorro
+
+treino_y = [1, 1, 1, 0, 0, 0]  # No caso os porcos representam o número 1 e os cachorros o número 0
+# No caso a IA erá pegar este 1 e 0 e irá compara-los com o treino_x, e irá aprender a reconhecer um porco de um cachorro
+
+Modelo = LinearSVC()  # Criando um modelo de IA
+
+Modelo.fit(treino_x, treino_y)  # Treinando o modelo de IA
+teste_x = [0, 1, 1]  # No caso este animal é um cachorro
+
+resp = Modelo.predict([teste_x])
+test_y = [0]  # No caso os porcos representam o número 1 e os cachorros o número 0
+accuracy = accuracy_score(test_y, resp)
+
+# Testando o modelo de IA
+for i in resp:
+    if i == 1:
+        print("Porco")
+    else:
+        print("Cachorro")
+print(f"Precisão: {accuracy * 100:.2f}%")  # Mostrando a precisão do modelo de IA
+
+teste_x = [[1, 1, 1], [1, 1, 0],  # No caso este animal é um cachorro
+           [0, 1, 1]]
+teste_y = [0, 1, 0]  # No caso os porcos representam o número 1 e os cachorros o número 0
+resp = Modelo.predict(teste_x)  # Testando o modelo de IA
+print("/ ---------- /")
+for i in resp:
+    if i == 1:
+        print("Porco")
+    else:
+        print("Cachorro")
+
+accuracy = accuracy_score(teste_y, resp)  # Calculando a precisão do modelo de IA
+print(f"Precisão: {accuracy * 100:.2f}%")  # Mostrando a precisão do modelo de IA
