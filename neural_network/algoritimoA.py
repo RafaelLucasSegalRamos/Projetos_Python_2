@@ -20,7 +20,6 @@ def aStar(labirinto):
     celula_inicial = (labirinto.rows, labirinto.cols)
     g_score[celula_inicial] = 0
     f_score[celula_inicial] = g_score[celula_inicial] + h_score(celula_inicial, destino)
-    print(f_score)
 
     fila = PriorityQueue()
     item = (f_score[celula_inicial], h_score(celula_inicial, destino), celula_inicial)
@@ -64,7 +63,7 @@ def aStar(labirinto):
     return caminho_final
 
 
-labirinto = maze(10, 10)
+labirinto = maze(100, 100)
 labirinto.CreateMaze()
 
 agente = agent(labirinto, filled=True, footprints=True)
