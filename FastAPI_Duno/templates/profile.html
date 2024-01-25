@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Pagina do Perfil</title>
+    <link rel="stylesheet" href="{{ url_for('static', 'style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', 'main.css') }}">
+</head>
+<body>
+    <h1>
+        Bem vindo {{ request.session['userinfo'].name }}
+    </h1>
+    <h2>Você fez Login pelo Auth0</h2>
+    <p>Aqui está as suas informações:</p>
+    <div>
+        <pre>
+            {{ request.session['userinfo'] }}
+        </pre>
+    </div>
+    <a href="/logout">Logout</a>
+</body>
+</html>
