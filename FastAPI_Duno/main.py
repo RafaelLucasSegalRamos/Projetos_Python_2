@@ -10,36 +10,32 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from Secrets import Key  # Neste arquivo possui informações confidenciais de conta, por isso não está no repositório
 
-# Para as variaveis abaixo basta usar o seus dados do Auth0
-domain = Key().DOMAIN
-client_id = Key().CLIENT_ID
-client_secret = Key().CLIENT_SECRET
-secret_key = Key().SECRECT_CODE
-audience = Key().AUDIENCE  # Mesmo sendo puxado de outro arquivo está é uma variavel vazia.
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env"
+    )
+    DOMAIN: str
+    CLIENT_ID: str
+    CLIENT_SECRET: str
+    SECRET_KEY: str
+    AUDIENCE: str
 
+
+settings = Settings() # type: ignore
 oauth = OAuth()
 oauth.register(
-    name="auth0",
-    client_id=client_id,
-    client_secret=client_secret,
-    server_metadata_url=f"https://{domain}/.well-known/openid-configuration",
+    "auth0",
+    client_id=settings.CLIENT_ID,
+    client_secret=settings.CLIENT_SECRET,
+    server_metadata_url=f"https://{settings.DOMAIN}/.well-known/openid-configuration",
     client_kwargs={
         "scope": "openid profile email",
     },
 )
 
-
-class Settings(BaseSettings):
-    model_config = SettingsConfigDict()
-    domain: str = domain
-    client_id: str = client_id
-    client_secret: str = client_secret
-
-
 app = FastAPI()
-app.add_middleware(SessionMiddleware, secret_key=secret_key)
+app.add_middleware(middleware_class=SessionMiddleware, secret_key=settings.SECRET_KEY)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 print()
 
@@ -57,7 +53,7 @@ async def login(request: Request):
         return await oauth.auth0.authorize_redirect(
             request,
             redirect_uri=request.url_for("callback"),
-            audience=audience)
+            audience=settings.AUDIENCE)
     return RedirectResponse('/')
 
 
@@ -68,6 +64,7 @@ async def callback(request: Request):
     request.session['access_token'] = token['access_token']
     request.session['id_token'] = token['id_token']
     request.session['userinfo'] = token['userinfo']
+    print(request.session['userinfo'])
     return RedirectResponse('/profile')
 
 
@@ -75,12 +72,12 @@ async def callback(request: Request):
 async def logout(request: Request):
     response = RedirectResponse(
         url=f"https://"
-            f"{domain}"
+            f"{settings.DOMAIN}"
             f"/v2/logout?"
             f"{urlencode(
                 {
                     'returnTo': request.url_for('/'),
-                    'client_id': client_id},
+                    'client_id': settings.CLIENT_ID},
                 quote_via=quote_plus
             )}"
     )
@@ -94,8 +91,8 @@ def profile(request: Request):
         "request": request,
         'userinfo': request.session['userinfo']
 
-        }
-    )
-
+    }
+                                      )
 
 # Link do video: https://www.youtube.com/watch?v=DeVCIU1JERc&list=TLPQMjMwMTIwMjQl7T2VvcgrMg
+# Houve um problema com o video, pois mesmo que eu tenha seguido o passo a passo, não consegui fazer o callback funcionar
