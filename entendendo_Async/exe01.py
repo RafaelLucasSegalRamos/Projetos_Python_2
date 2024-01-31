@@ -6,6 +6,7 @@ async def outraFuncao(p):
     print(f'teste{p}')
     await asyncio.sleep(1)
     print(f"Momento da função {p}: {strftime('%X')}")
+    await asyncio.sleep(1)
     print(f'teste{p}')
 
 
@@ -14,8 +15,9 @@ async def funcao(p):
     task = asyncio.create_task(outraFuncao(1))
     task2 = asyncio.create_task(outraFuncao(2))
     await task2
-    await task
+
     print('teste')
+    await task
     print(f"Terminou {strftime('%X')}")
 
 
